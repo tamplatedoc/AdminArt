@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - ESParduino</title>
+    <style>
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Admin Container */
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .admin-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .logout-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        /* Card Styles */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .form-group {
+                margin-bottom: 10px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+            
+            .action-btns {
+                flex-direction: column;
+                gap: 3px;
+            }
+            
+            .btn {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <h1>Admin Panel ESParduino</h1>
+            <button class="logout-btn">Logout</button>
+        </div>
+        
+        <!-- Add/Edit Article Form -->
+        <div class="card">
+            <h2>Tambah/Edit Artikel</h2>
+            <form id="article-form">
+                <div class="form-group">
+                    <label for="article-title">Judul Artikel</label>
+                    <input type="text" id="article-title" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="article-description">Deskripsi Singkat</label>
+                    <textarea id="article-description" class="form-control" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="article-url">URL Slug (contoh: tutorial-arduino)</label>
+                    <input type="text" id="article-url" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="article-image">Gambar Utama</label>
+                    <input type="file" id="article-image" class="form-control" accept="image/*">
+                </div>
+                
+                <div class="form-group">
+                    <label for="meta-title">Meta Title</label>
+                    <input type="text" id="meta-title" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="meta-description">Meta Description</label>
+                    <textarea id="meta-description" class="form-control" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="meta-keywords">Meta Keywords (pisahkan dengan koma)</label>
+                    <input type="text" id="meta-keywords" class="form-control" required>
+                </div>
+                
+                <button type="submit" class="btn">Simpan Artikel</button>
+            </form>
+        </div>
+        
+        <!-- Articles List -->
+        <div class="card">
+            <h2>Daftar Artikel</h2>
+            <div class="table-responsive">
+                <table id="articles-table">
+                    <thead>
+                        <tr>
+                            <th>Judul</th>
+                            <th>URL</th>
+                            <th>Tanggal</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="articles-list">
+                        <!-- Data akan dimuat via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Artikel (Simpan di localStorage sebagai contoh)
+        let articles = JSON.parse(localStorage.getItem('esparduino-articles')) || [];
+        
+        // Elemen Form
+        const articleForm = document.getElementById('article-form');
+        const articlesList = document.getElementById('articles-list');
+        
+        // Tampilkan artikel di tabel
+        function displayArticles() {
+            let html = '';
+            
+            articles.forEach((article, index) => {
+                html += `
+                    <tr>
+                        <td>${article.title}</td>
+                        <td>${article.url}</td>
+                        <td>${article.date || 'N/A'}</td>
+                        <td class="action-btns">
+                            <button onclick="editArticle(${index})" class="btn">Edit</button>
+                            <button onclick="deleteArticle(${index})" class="btn btn-danger">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            articlesList.innerHTML = html || '<tr><td colspan="4">Belum ada artikel</td></tr>';
+        }
+        
+        // Tambah/Edit Artikel
+        articleForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const article = {
+                id: Date.now(),
+                title: document.getElementById('article-title').value,
+                description: document.getElementById('article-description').value,
+                url: document.getElementById('article-url').value,
+                image: document.getElementById('article-image').files[0]?.name || 'default.jpg',
+                date: new Date().toLocaleDateString('id-ID'),
+                meta: {
+                    title: document.getElementById('meta-title').value,
+                    description: document.getElementById('meta-description').value,
+                    keywords: document.getElementById('meta-keywords').value
+                }
+            };
+            
+            // Cek apakah edit atau tambah baru
+            const editIndex = articleForm.dataset.editIndex;
+            
+            if (editIndex !== undefined) {
+                articles[editIndex] = article;
+                delete articleForm.dataset.editIndex;
+            } else {
+                articles.push(article);
+            }
+            
+            // Simpan ke localStorage
+            localStorage.setItem('esparduino-articles', JSON.stringify(articles));
+            
+            // Reset form
+            articleForm.reset();
+            
+            // Refresh tampilan
+            displayArticles();
+            
+            alert('Artikel berhasil disimpan!');
+        });
+        
+        // Edit Artikel
+        function editArticle(index) {
+            const article = articles[index];
+            
+            document.getElementById('article-title').value = article.title;
+            document.getElementById('article-description').value = article.description;
+            document.getElementById('article-url').value = article.url;
+            document.getElementById('meta-title').value = article.meta.title;
+            document.getElementById('meta-description').value = article.meta.description;
+            document.getElementById('meta-keywords').value = article.meta.keywords;
+            
+            // Set edit index
+            articleForm.dataset.editIndex = index;
+            
+            // Scroll ke form
+            document.getElementById('article-title').focus();
+        }
+        
+        // Hapus Artikel
+        function deleteArticle(index) {
+            if (confirm('Apakah Anda yakin ingin menghapus artikel ini?')) {
+                articles.splice(index, 1);
+                localStorage.setItem('esparduino-articles', JSON.stringify(articles));
+                displayArticles();
+            }
+        }
+        
+        // Logout
+        document.querySelector('.logout-btn').addEventListener('click', function() {
+            if (confirm('Anda yakin ingin logout?')) {
+                window.location.href = 'index.html';
+            }
+        });
+        
+        // Tampilkan artikel saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', displayArticles);
+    </script>
+</body>
+</html>
