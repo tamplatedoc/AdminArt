@@ -1,174 +1,448 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Etalase Buku Cerita</title>
-  <meta name="description" content="Koleksi digital buku cerita menarik dan edukatif." />
-  <meta name="keywords" content="buku cerita, digital, etalase, literasi, anak, remaja" />
-  <meta property="og:title" content="Etalase Buku Cerita" />
-  <meta property="og:description" content="Temukan buku cerita inspiratif dan edukatif untuk semua usia." />
-  <meta property="og:image" content="https://via.placeholder.com/600x400?text=Etalase+Buku" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://amdf.web.id/" />
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin Ebook - Kelola Koleksi Ebook</title>
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #121212;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background: linear-gradient(135deg, #4b0082 0%, #00bfa5 100%);
+    padding: 16px 24px;
+    color: white;
+    font-weight: 900;
+    font-size: 28px;
+    user-select: none;
+  }
+  main {
+    max-width: 900px;
+    margin: 24px auto 48px;
+    padding: 0 16px;
+    flex: 1;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 32px;
+    background: linear-gradient(135deg, #e040fb, #00bfa5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 900;
+  }
+  .stat-box {
+    background: rgba(0, 191, 165, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    font-size: 1.4rem;
+    text-align: center;
+    color: #00bfa5;
+    font-weight: 700;
+  }
+  form {
+    background: rgba(255 255 255 / 0.08);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+  label {
+    display: block;
+    margin-top: 16px;
+    font-weight: 600;
+    color: #b0bec5;
+  }
+  input[type="text"],
+  textarea,
+  input[type="url"] {
+    width: 100%;
+    padding: 10px 14px;
+    margin-top: 8px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    background: #262626;
+    color: white;
+  }
+  textarea {
+    min-height: 100px;
+  }
+  input[type="file"] {
+    margin-top: 12px;
+    color: #b0bec5;
+  }
+  button {
+    margin-top: 24px;
+    background: linear-gradient(135deg, #00bfa5, #e040fb);
+    border: none;
+    padding: 14px 32px;
+    border-radius: 14px;
+    color: #121212;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+  }
+  button:hover,
+  button:focus {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px #00bfa5;
+    outline: none;
+  }
+  .ebooks-list {
+    margin-top: 40px;
+  }
+  .ebook-item {
+    background: rgba(255 255 255 / 0.06);
+    margin-bottom: 16px;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .ebook-cover {
+    width: 120px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #262626;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+  .ebook-info {
+    flex: 1;
+    color: #b0bec5;
+  }
+  .ebook-info h3 {
+    margin: 0 0 8px 0;
+    color: #00bfa5;
+    font-weight: 700;
+  }
+  .ebook-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .btn-edit,
+  .btn-delete {
+    background: transparent;
+    border: 2px solid #00bfa5;
+    color: #00bfa5;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  .btn-edit:hover,
+  .btn-edit:focus {
+    background-color: #00bfa5;
+    color: #121212;
+    outline: none;
+  }
+  .btn-delete:hover,
+  .btn-delete:focus {
+    background-color: #e040fb;
+    color: #121212;
+    outline: none;
+    border-color: #e040fb;
+  }
+  @media (max-width: 640px) {
+    .ebook-item {
+      flex-direction: column;
+      align-items: stretch;
     }
-
-    body {
-      line-height: 1.6;
-      background-color: #f9f9f9;
-      color: #333;
+    .ebook-cover {
+      width: 100%;
+      height: auto;
+      max-height: 200px;
     }
-
-    header {
-      background-color: #2c3e50;
-      color: white;
-      padding: 15px 0;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      text-align: center;
+    .ebook-actions {
+      flex-direction: row;
+      justify-content: flex-start;
     }
-
-    nav ul {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      list-style: none;
-      gap: 15px;
-      margin-top: 10px;
-    }
-
-    nav ul li a {
-      text-decoration: none;
-      color: white;
-      padding: 5px 10px;
-      border-radius: 4px;
-      transition: background-color 0.3s;
-    }
-
-    nav ul li a:hover {
-      background-color: #34495e;
-    }
-
-    #search {
-      width: 80%;
-      padding: 10px;
-      margin: 20px auto;
-      display: block;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-
-    main {
-      max-width: 1200px;
-      margin: auto;
-      padding: 20px;
-    }
-
-    #book-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
-    }
-
-    .book-item {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 15px;
-      transition: transform 0.2s;
-    }
-
-    .book-item:hover {
-      transform: translateY(-5px);
-    }
-
-    footer {
-      background-color: #2c3e50;
-      color: white;
-      text-align: center;
-      padding: 20px;
-      margin-top: 30px;
-    }
-  </style>
+  }
+</style>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Etalase Buku Cerita</h1>
-    <nav>
-      <ul>
-        <li><a href="index.html">Beranda</a></li>
-        <li><a href="about.html">Tentang Kami</a></li>
-        <li><a href="contact.html">Kontak</a></li>
-        <li><a href="privacy.html">Privasi</a></li>
-        <li><a href="terms.html">Syarat</a></li>
-      </ul>
-    </nav>
-    <input type="text" id="search" placeholder="Cari buku..." />
-  </header>
-  <main>
-    <section id="book-list">
-      <div class="book-item">
-        <h2>Memuat Data...</h2>
-        <p>Sedang mengambil data dari server</p>
-      </div>
-    </section>
-  </main>
-  <footer>
-    <p>&copy; <span id="year"></span> Etalase Buku Cerita. Semua hak dilindungi.</p>
-  </footer>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+<header>Admin Panel Ebook</header>
+<main>
+  <h1>Kelola Koleksi Ebook</h1>
+  <div class="stat-box" id="visits-count" aria-live="polite" aria-atomic="true">
+    Menghitung pengunjung...
+  </div>
+  <form id="ebook-form" aria-label="Form ebook">
+    <input type="hidden" id="ebook-id" value="" />
+    <label for="ebook-title">Judul Ebook</label>
+    <input type="text" id="ebook-title" name="ebook-title" required autocomplete="off" />
+    
+    <label for="ebook-author">Penulis</label>
+    <input type="text" id="ebook-author" name="ebook-author" required autocomplete="off" />
+    
+    <label for="ebook-description">Deskripsi Ebook</label>
+    <textarea id="ebook-description" name="ebook-description" required></textarea>
+    
+    <label for="ebook-category">Kategori</label>
+    <input type="text" id="ebook-category" name="ebook-category" required autocomplete="off" />
+    
+    <label for="ebook-cover">Cover Ebook (JPEG/PNG, max 2MB)</label>
+    <input type="file" id="ebook-cover" name="ebook-cover" accept="image/jpeg, image/png" />
+    
+    <label for="ebook-file-url">URL File Ebook (PDF/EPUB)</label>
+    <input type="url" id="ebook-file-url" name="ebook-file-url" required autocomplete="off" placeholder="https://..." />
+    
+    <label for="ebook-alt">Alt Text Cover (untuk aksesibilitas)</label>
+    <input type="text" id="ebook-alt" name="ebook-alt" required autocomplete="off" />
+    
+    <button type="submit" id="submit-btn">Tambah Ebook</button>
+  </form>
+  <section class="ebooks-list" id="ebooks-list" aria-live="polite" aria-atomic="true" aria-label="Daftar ebook yang sudah ada">
+    <!-- Daftar ebook akan muncul di sini -->
+  </section>
+</main>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDeiLybtGc6evATj5O7M1FiJd1GPYd-rYc",
-      authDomain: "tamplatedoc.firebaseapp.com",
-      databaseURL: "https://tamplatedoc-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "tamplatedoc",
-      storageBucket: "tamplatedoc.appspot.com",
-      messagingSenderId: "264966107720",
-      appId: "1:264966107720:web:868abe93cdff209040de7d"
-    };
+<script>
+  // Ganti dengan konfigurasi Firebase Anda
+  const firebaseConfig = {
+    apiKey: "AIzaSyAya-7QEtbflW7jh_EoPclFBQ43VnrKZrM",
+    authDomain: "rdw-katalog.firebaseapp.com",
+    databaseURL: "https://rdw-katalog-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "rdw-katalog",
+    storageBucket: "rdw-katalog.firebasestorage.app",
+    messagingSenderId: "506572005524",
+    appId: "1:506572005524:web:43b7d27f2c33a1d4071481",
+    measurementId: "G-BDQXKFERCR"
+  };
+  
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const bookList = document.getElementById('book-list');
-    const searchInput = document.getElementById('search');
+  const visitsCount = document.getElementById('visits-count');
+  const form = document.getElementById('ebook-form');
+  const inputId = document.getElementById('ebook-id');
+  const inputTitle = document.getElementById('ebook-title');
+  const inputAuthor = document.getElementById('ebook-author');
+  const inputDescription = document.getElementById('ebook-description');
+  const inputCategory = document.getElementById('ebook-category');
+  const inputCover = document.getElementById('ebook-cover');
+  const inputFileUrl = document.getElementById('ebook-file-url');
+  const inputAlt = document.getElementById('ebook-alt');
+  const submitBtn = document.getElementById('submit-btn');
+  const ebooksList = document.getElementById('ebooks-list');
 
-    let allBooks = [];
+  let currentEditingKey = null;
+  let currentCoverBase64 = '';
 
-    onValue(ref(db, 'books/'), (snapshot) => {
-      const data = snapshot.val();
-      allBooks = Object.values(data);
-      displayBooks(allBooks);
+  function escapeHTML(text) {
+    return text.replace(/[&<>"']/g, m => {
+      return {'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[m];
     });
+  }
 
-    searchInput.addEventListener('input', () => {
-      const searchTerm = searchInput.value.toLowerCase();
-      const filtered = allBooks.filter(b => b.title.toLowerCase().includes(searchTerm));
-      displayBooks(filtered);
+  // Load visitor stats and display
+  function loadStats() {
+    const statsRef = database.ref('stats/visits');
+    statsRef.on('value', snapshot => {
+      const visits = snapshot.val() || 0;
+      visitsCount.textContent = `Jumlah Pengunjung: ${visits.toLocaleString('id-ID')}`;
     });
+  }
 
-    function displayBooks(data) {
-      bookList.innerHTML = '';
-      data.forEach(book => {
-        const div = document.createElement('div');
-        div.className = 'book-item';
-        div.innerHTML = `
-          <h2>${book.title}</h2>
-          <p>${book.description}</p>
-        `;
-        bookList.appendChild(div);
-      });
+  // Load ebooks list and render
+  function loadEbooks() {
+    const ebooksRef = database.ref('ebooks');
+    ebooksRef.on('value', snapshot => {
+      const ebooksObj = snapshot.val() || {};
+      const ebooks = Object.entries(ebooksObj).map(([key, val]) => ({key, ...val}));
+      renderEbooksList(ebooks);
+    });
+  }
+
+  // Render ebooks list in admin panel
+  function renderEbooksList(ebooks) {
+    if(ebooks.length === 0) {
+      ebooksList.innerHTML = '<p>Belum ada ebook yang terdaftar.</p>';
+      return;
     }
+    ebooksList.innerHTML = '';
+    ebooks.forEach(ebook => {
+      const item = document.createElement('article');
+      item.className = 'ebook-item';
+      item.innerHTML = `
+        <img src="${ebook.cover || ''}" alt="${escapeHTML(ebook.alt || '')}" class="ebook-cover" />
+        <div class="ebook-info">
+          <h3>${escapeHTML(ebook.title || '')}</h3>
+          <p><strong>Penulis:</strong> ${escapeHTML(ebook.author || '')}</p>
+          <p><strong>Kategori:</strong> ${escapeHTML(ebook.category || '')}</p>
+          <p>${escapeHTML((ebook.description || '').split('\n')[0])}</p>
+        </div>
+        <div class="ebook-actions">
+          <button class="btn-edit" aria-label="Edit ${escapeHTML(ebook.title || '')}" data-key="${ebook.key}">Edit</button>
+          <button class="btn-delete" aria-label="Hapus ${escapeHTML(ebook.title || '')}" data-key="${ebook.key}">Hapus</button>
+        </div>
+      `;
+      ebooksList.appendChild(item);
+    });
+    
+    // Event listeners
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-key');
+        editEbook(key);
+      });
+    });
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-key');
+        if(confirm('Yakin ingin menghapus ebook ini?')) deleteEbook(key);
+      });
+    });
+  }
 
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
+  // Edit ebook - load data into form
+  function editEbook(key) {
+    database.ref(`ebooks/${key}`).once('value').then(snapshot => {
+      const ebook = snapshot.val();
+      if(!ebook) return alert('Ebook tidak ditemukan');
+      
+      currentEditingKey = key;
+      inputTitle.value = ebook.title || '';
+      inputAuthor.value = ebook.author || '';
+      inputDescription.value = ebook.description || '';
+      inputCategory.value = ebook.category || '';
+      inputFileUrl.value = ebook.fileUrl || '';
+      inputAlt.value = ebook.alt || '';
+      currentCoverBase64 = ebook.cover || '';
+      inputCover.value = '';
+      submitBtn.textContent = 'Simpan Perubahan';
+    }).catch(() => alert('Gagal memuat data ebook.'));
+  }
+
+  // Delete ebook
+  function deleteEbook(key) {
+    database.ref(`ebooks/${key}`).remove().then(() => {
+      alert('Ebook berhasil dihapus.');
+      resetForm();
+    }).catch(() => alert('Gagal menghapus ebook.'));
+  }
+
+  // Convert image file to base64
+  function fileToBase64(file) {
+    return new Promise((resolve,reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('Gagal membaca file'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Reset form fields
+  function resetForm() {
+    currentEditingKey = null;
+    inputId.value = '';
+    inputTitle.value = '';
+    inputAuthor.value = '';
+    inputDescription.value = '';
+    inputCategory.value = '';
+    inputFileUrl.value = '';
+    inputAlt.value = '';
+    inputCover.value = '';
+    currentCoverBase64 = '';
+    submitBtn.textContent = 'Tambah Ebook';
+  }
+
+  // Form submit handler
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = currentEditingKey ? 'Menyimpan...' : 'Menambah...';
+    
+    try {
+      let coverData = currentCoverBase64;
+      
+      // Jika ada file cover baru diupload
+      if(inputCover.files.length > 0) {
+        const file = inputCover.files[0];
+        if(file.size > 2*1024*1024) {
+          alert('Ukuran gambar maksimal 2MB.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = currentEditingKey ? 'Simpan Perubahan' : 'Tambah Ebook';
+          return;
+        }
+        coverData = await fileToBase64(file);
+      } else if(!coverData) {
+        alert('Silakan upload cover ebook.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = currentEditingKey ? 'Simpan Perubahan' : 'Tambah Ebook';
+        return;
+      }
+      
+      // Validasi URL file ebook
+      if(!inputFileUrl.value.trim() || !isValidUrl(inputFileUrl.value.trim())) {
+        alert('URL file ebook tidak valid.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = currentEditingKey ? 'Simpan Perubahan' : 'Tambah Ebook';
+        return;
+      }
+      
+      const ebookData = {
+        title: inputTitle.value.trim(),
+        author: inputAuthor.value.trim(),
+        description: inputDescription.value.trim(),
+        category: inputCategory.value.trim(),
+        cover: coverData,
+        fileUrl: inputFileUrl.value.trim(),
+        alt: inputAlt.value.trim(),
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      };
+      
+      if(currentEditingKey) {
+        await database.ref(`ebooks/${currentEditingKey}`).set(ebookData);
+        alert('Ebook berhasil diperbarui.');
+      } else {
+        await database.ref('ebooks').push(ebookData);
+        alert('Ebook berhasil ditambahkan.');
+      }
+      resetForm();
+    } catch(error) {
+      console.error(error);
+      alert('Terjadi kesalahan saat menyimpan ebook.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = currentEditingKey ? 'Simpan Perubahan' : 'Tambah Ebook';
+    }
+  });
+
+  // Helper function to validate URL
+  function isValidUrl(string) {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Initialize
+  loadStats();
+  loadEbooks();
+</script>
 </body>
 </html>
-
