@@ -5,12 +5,176 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Cerita</title>
 <style>
-body { font-family: sans-serif; background: #121212; color: #eee; padding: 20px; }
-h1 { color: #00bfa5; }
-form { background: #1e1e1e; padding: 20px; border-radius: 10px; }
-input, textarea { width: 100%; padding: 10px; margin: 10px 0; background: #2c2c2c; border: none; color: #fff; }
-button { padding: 10px 20px; background: #00bfa5; border: none; color: #121212; font-weight: bold; cursor: pointer; }
-button:hover { background: #00d4b3; }
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #121212;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background: linear-gradient(135deg, #4b0082 0%, #00bfa5 100%);
+    padding: 16px 24px;
+    color: white;
+    font-weight: 900;
+    font-size: 28px;
+    user-select: none;
+  }
+  main {
+    max-width: 900px;
+    margin: 24px auto 48px;
+    padding: 0 16px;
+    flex: 1;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 32px;
+    background: linear-gradient(135deg, #e040fb, #00bfa5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 900;
+  }
+  .stat-box {
+    background: rgba(0, 191, 165, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    font-size: 1.4rem;
+    text-align: center;
+    color: #00bfa5;
+    font-weight: 700;
+  }
+  form {
+    background: rgba(255 255 255 / 0.08);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+  label {
+    display: block;
+    margin-top: 16px;
+    font-weight: 600;
+    color: #b0bec5;
+  }
+  input[type="text"],
+  textarea,
+  input[type="url"] {
+    width: 100%;
+    padding: 10px 14px;
+    margin-top: 8px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    background: #262626;
+    color: white;
+  }
+  textarea {
+    min-height: 100px;
+  }
+  input[type="file"] {
+    margin-top: 12px;
+    color: #b0bec5;
+  }
+  button {
+    margin-top: 24px;
+    background: linear-gradient(135deg, #00bfa5, #e040fb);
+    border: none;
+    padding: 14px 32px;
+    border-radius: 14px;
+    color: #121212;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+  }
+  button:hover,
+  button:focus {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px #00bfa5;
+    outline: none;
+  }
+  .ebooks-list {
+    margin-top: 40px;
+  }
+  .ebook-item {
+    background: rgba(255 255 255 / 0.06);
+    margin-bottom: 16px;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .ebook-cover {
+    width: 120px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #262626;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+  .ebook-info {
+    flex: 1;
+    color: #b0bec5;
+  }
+  .ebook-info h3 {
+    margin: 0 0 8px 0;
+    color: #00bfa5;
+    font-weight: 700;
+  }
+  .ebook-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .btn-edit,
+  .btn-delete {
+    background: transparent;
+    border: 2px solid #00bfa5;
+    color: #00bfa5;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  .btn-edit:hover,
+  .btn-edit:focus {
+    background-color: #00bfa5;
+    color: #121212;
+    outline: none;
+  }
+  .btn-delete:hover,
+  .btn-delete:focus {
+    background-color: #e040fb;
+    color: #121212;
+    outline: none;
+    border-color: #e040fb;
+  }
+  @media (max-width: 640px) {
+    .ebook-item {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .ebook-cover {
+      width: 100%;
+      height: auto;
+      max-height: 200px;
+    }
+    .ebook-actions {
+      flex-direction: row;
+      justify-content: flex-start;
+    }
+  }
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
