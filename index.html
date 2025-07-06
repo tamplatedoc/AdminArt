@@ -114,6 +114,23 @@
       text-decoration: none;
       margin: 0 8px;
     }
+    /* Gaya untuk kolom PIN */
+    .pin-input {
+      display: flex;
+      justify-content: center;
+      margin: 20px;
+    }
+    .pin-box {
+      width: 40px;
+      height: 40px;
+      margin: 0 5px;
+      text-align: center;
+      font-size: 24px;
+      border: 2px solid #00bfa5;
+      border-radius: 5px;
+      background: #262626;
+      color: #fff;
+    }
   </style>
   <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -123,10 +140,17 @@
 <body>
   <header>Admin Kelola Cerita</header>
 
-  <!-- PIN form -->
-  <div id="pin-form" style="text-align: center; margin: 20px;">
+  <!-- Form PIN dengan 6 kotak -->
+  <div id="pin-form" style="text-align: center;">
     <label for="pin">Masukkan PIN:</label>
-    <input type="password" id="pin" required />
+    <div class="pin-input">
+      <input type="text" class="pin-box" maxlength="1" />
+      <input type="text" class="pin-box" maxlength="1" />
+      <input type="text" class="pin-box" maxlength="1" />
+      <input type="text" class="pin-box" maxlength="1" />
+      <input type="text" class="pin-box" maxlength="1" />
+      <input type="text" class="pin-box" maxlength="1" />
+    </div>
     <button id="submit-pin">Masuk</button>
   </div>
 
@@ -182,18 +206,32 @@
     const ceritaList = document.getElementById('cerita-list');
     const pinForm = document.getElementById('pin-form');
     const adminContent = document.getElementById('admin-content');
-    const pinInput = document.getElementById('pin');
+    const pinBoxes = document.querySelectorAll('.pin-box');
     const submitPinButton = document.getElementById('submit-pin');
 
     const pinPath = "pin"; // Lokasi PIN di Firebase
 
+    pinBoxes.forEach((box, index) => {
+      box.addEventListener('input', () => {
+        if (box.value.length === 1 && index < pinBoxes.length - 1) {
+          pinBoxes[index + 1].focus();
+        }
+      });
+
+      box.addEventListener('keydown', (event) => {
+        if (event.key === 'Backspace' && index > 0 && box.value.length === 0) {
+          pinBoxes[index - 1].focus();
+        }
+      });
+    });
+
     submitPinButton.addEventListener('click', () => {
-      const enteredPin = pinInput.value;
+      const pin = Array.from(pinBoxes).map(box => box.value).join('');
       auth.signInAnonymously()
         .then(() => {
           db.ref(pinPath).once('value').then(snapshot => {
             const correctPin = snapshot.val();
-            if (enteredPin === correctPin) {
+            if (pin === correctPin) {
               pinForm.style.display = 'none';
               adminContent.style.display = 'block';
               loadCerita();
