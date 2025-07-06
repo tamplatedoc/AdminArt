@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin - Kelola Cerita</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: linear-gradient(135deg, #4b0082, #00bfa5);
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    main {
+      max-width: 700px;
+      margin: 20px auto;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+    }
+    input[type="text"],
+    textarea,
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: none;
+      border-radius: 8px;
+      background: #262626;
+      color: #fff;
+    }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    input[type="file"] {
+      margin-top: 8px;
+    }
+    button {
+      margin-top: 16px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #00bfa5, #e040fb);
+      color: #121212;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px #00bfa5;
+    }
+    .cerita-list {
+      margin-top: 30px;
+    }
+    .cerita-item {
+      background: rgba(255,255,255,0.08);
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .cerita-item h3 {
+      margin: 0;
+      color: #00bfa5;
+    }
+    .cerita-actions {
+      margin-top: 8px;
+    }
+    .btn-edit, .btn-delete {
+      background: transparent;
+      border: 1px solid #00bfa5;
+      padding: 4px 8px;
+      border-radius: 6px;
+      color: #00bfa5;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+    .btn-delete {
+      border-color: #e040fb;
+      color: #e040fb;
+    }
+    .btn-edit:hover {
+      background: #00bfa5;
+      color: #121212;
+    }
+    .btn-delete:hover {
+      background: #e040fb;
+      color: #121212;
+    }
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 14px;
+      color: #888;
+    }
+    footer a {
+      color: #00bfa5;
+      text-decoration: none;
+      margin: 0 8px;
+    }
+  </style>
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <header>Admin Kelola Cerita</header>
+
+  <!-- PIN form -->
+  <div id="pin-form" style="text-align: center; margin: 20px;">
+    <label for="pin">Masukkan PIN:</label>
+    <input type="password" id="pin" required />
+    <button id="submit-pin">Masuk</button>
+  </div>
+
+  <!-- Admin content -->
+  <main id="admin-content" style="display: none;">
+    <form id="form-cerita">
+      <input type="hidden" id="current-key" />
+      <label for="judul">Judul Cerita</label>
+      <input type="text" id="judul" required />
+
+      <label for="genre">Genre</label>
+      <input type="text" id="genre" required />
+
+      <label for="isi">Isi Cerita</label>
+      <textarea id="isi" required></textarea>
+
+      <label for="gambar">Cover Cerita (gambar URL atau file)</label>
+      <input type="file" id="gambar" accept="image/*" />
+
+      <button type="submit">Simpan Cerita</button>
+    </form>
+
+    <input type="text" id="search" placeholder="Cari judul atau genre" />
+    <div class="cerita-list" id="cerita-list">
+      <!-- List cerita muncul di sini -->
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Admin Cerita Digital | <a href="#">Kebijakan</a> | <a href="#">Kontak</a>
+  </footer>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeiLybtGc6evATj5O7M1FiJd1GPYd-rYc",
+      authDomain: "tamplatedoc.firebaseapp.com",
+      databaseURL: "https://tamplatedoc-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "tamplatedoc",
+      storageBucket: "tamplatedoc.appspot.com",
+      messagingSenderId: "264966107720",
+      appId: "1:264966107720:web:868abe93cdff209040de7d"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+
+    const form = document.getElementById('form-cerita');
+    const currentKeyInput = document.getElementById('current-key');
+    const judul = document.getElementById('judul');
+    const genre = document.getElementById('genre');
+    const isi = document.getElementById('isi');
+    const gambar = document.getElementById('gambar');
+    const ceritaList = document.getElementById('cerita-list');
+    const pinForm = document.getElementById('pin-form');
+    const adminContent = document.getElementById('admin-content');
+    const pinInput = document.getElementById('pin');
+    const submitPinButton = document.getElementById('submit-pin');
+
+    const pinPath = "pin"; // Lokasi PIN di Firebase
+
+    submitPinButton.addEventListener('click', () => {
+      const enteredPin = pinInput.value;
+      auth.signInAnonymously()
+        .then(() => {
+          db.ref(pinPath).once('value').then(snapshot => {
+            const correctPin = snapshot.val();
+            if (enteredPin === correctPin) {
+              pinForm.style.display = 'none';
+              adminContent.style.display = 'block';
+              loadCerita();
+            } else {
+              alert("PIN salah");
+              auth.signOut();
+            }
+          });
+        })
+        .catch(err => {
+          console.error("Auth error:", err);
+          alert("Gagal login");
+        });
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      let gambarData = '';
+
+      if (gambar.files.length > 0) {
+        const file = gambar.files[0];
+        if (file.size > 2 * 1024 * 1024) {
+          alert('Gambar maksimal 2MB');
+          return;
+        }
+        gambarData = await fileToBase64(file);
+      }
+
+      const data = {
+        judul: judul.value.trim(),
+        genre: genre.value.trim(),
+        isi: isi.value.trim(),
+        gambar: gambarData,
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      const key = currentKeyInput.value;
+      if (key) {
+        db.ref(`cerita/${key}`).set(data).then(() => {
+          alert('Cerita diperbarui!');
+          resetForm();
+        });
+      } else {
+        db.ref('cerita').push(data).then(() => {
+          alert('Cerita ditambahkan!');
+          resetForm();
+        });
+      }
+    });
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject('Gagal baca file');
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function resetForm() {
+      form.reset();
+      currentKeyInput.value = '';
+    }
+
+    function loadCerita() {
+      db.ref('cerita').on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        ceritaList.innerHTML = '';
+        Object.entries(data).forEach(([key, val]) => {
+          const item = document.createElement('div');
+          item.className = 'cerita-item';
+          item.innerHTML = `
+            <h3>${val.judul}</h3>
+            <div><strong>Genre:</strong> ${val.genre}</div>
+            <div class="cerita-actions">
+              <button class="btn-edit" data-key="${key}">Edit</button>
+              <button class="btn-delete" data-key="${key}">Hapus</button>
+            </div>
+          `;
+          ceritaList.appendChild(item);
+        });
+
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+          btn.onclick = () => {
+            editCerita(btn.dataset.key);
+            window.scrollTo(0, 0);
+          };
+        });
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+          btn.onclick = () => hapusCerita(btn.dataset.key);
+        });
+      });
+    }
+
+    function editCerita(key) {
+      db.ref(`cerita/${key}`).once('value').then(snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          judul.value = data.judul;
+          genre.value = data.genre;
+          isi.value = data.isi;
+          currentKeyInput.value = key;
+        }
+      });
+    }
+
+    function hapusCerita(key) {
+      if (confirm('Yakin ingin menghapus cerita ini?')) {
+        db.ref(`cerita/${key}`).remove().then(() => {
+          alert('Cerita dihapus');
+          resetForm();
+        });
+      }
+    }
+
+    document.getElementById('search').addEventListener('input', function () {
+      const searchTerm = this.value.toLowerCase();
+      const items = document.querySelectorAll('.cerita-item');
+      items.forEach(item => {
+        const title = item.querySelector('h3').textContent.toLowerCase();
+        const genre = item.querySelector('div').textContent.toLowerCase();
+        item.style.display = (title.includes(searchTerm) || genre.includes(searchTerm)) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>
