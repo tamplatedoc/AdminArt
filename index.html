@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin - Kelola Cerita</title>
- <style>
+  <style>
     body {
       font-family: 'Poppins', sans-serif;
       background: #121212;
@@ -33,7 +33,8 @@
       font-weight: 600;
     }
     input[type="text"],
-    textarea {
+    textarea,
+    input[type="password"] {
       width: 100%;
       padding: 10px;
       margin-top: 6px;
@@ -114,11 +115,22 @@
       margin: 0 8px;
     }
   </style>
+  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
 <body>
   <header>Admin Kelola Cerita</header>
+
+  <!-- PIN form -->
+  <div id="pin-form" style="text-align: center; margin: 20px;">
+    <label for="pin">Masukkan PIN:</label>
+    <input type="password" id="pin" required />
+    <button id="submit-pin">Masuk</button>
+  </div>
+
+  <!-- Admin content -->
   <main id="admin-content" style="display: none;">
     <form id="form-cerita">
       <input type="hidden" id="current-key" />
@@ -143,14 +155,8 @@
     </div>
   </main>
 
-  <div id="pin-form" style="text-align: center; margin: 20px;">
-    <label for="pin">Masukkan PIN:</label>
-    <input type="password" id="pin" required />
-    <button id="submit-pin">Masuk</button>
-  </div>
-
   <footer>
-    <!-- (footer yang ada tetap sama) -->
+    &copy; 2025 Admin Cerita Digital | <a href="#">Kebijakan</a> | <a href="#">Kontak</a>
   </footer>
 
   <script>
@@ -165,6 +171,7 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth();
 
     const form = document.getElementById('form-cerita');
     const currentKeyInput = document.getElementById('current-key');
@@ -178,16 +185,28 @@
     const pinInput = document.getElementById('pin');
     const submitPinButton = document.getElementById('submit-pin');
 
-    const correctPin = "1234"; // Ganti dengan PIN yang Anda inginkan
+    const pinPath = "700261"; // Lokasi PIN di Firebase
 
     submitPinButton.addEventListener('click', () => {
-      if (pinInput.value === correctPin) {
-        pinForm.style.display = 'none';
-        adminContent.style.display = 'block';
-        loadCerita();
-      } else {
-        alert('PIN salah, coba lagi.');
-      }
+      const enteredPin = pinInput.value;
+      auth.signInAnonymously()
+        .then(() => {
+          db.ref(pinPath).once('value').then(snapshot => {
+            const correctPin = snapshot.val();
+            if (enteredPin === correctPin) {
+              pinForm.style.display = 'none';
+              adminContent.style.display = 'block';
+              loadCerita();
+            } else {
+              alert("PIN salah");
+              auth.signOut();
+            }
+          });
+        })
+        .catch(err => {
+          console.error("Auth error:", err);
+          alert("Gagal login");
+        });
     });
 
     form.addEventListener('submit', async (e) => {
@@ -260,7 +279,7 @@
         document.querySelectorAll('.btn-edit').forEach(btn => {
           btn.onclick = () => {
             editCerita(btn.dataset.key);
-            window.scrollTo(0, 0); // Scroll ke atas saat edit
+            window.scrollTo(0, 0);
           };
         });
         document.querySelectorAll('.btn-delete').forEach(btn => {
@@ -290,18 +309,13 @@
       }
     }
 
-    // Fitur pencarian
-    document.getElementById('search').addEventListener('input', function() {
+    document.getElementById('search').addEventListener('input', function () {
       const searchTerm = this.value.toLowerCase();
       const items = document.querySelectorAll('.cerita-item');
       items.forEach(item => {
         const title = item.querySelector('h3').textContent.toLowerCase();
         const genre = item.querySelector('div').textContent.toLowerCase();
-        if (title.includes(searchTerm) || genre.includes(searchTerm)) {
-          item.style.display = '';
-        } else {
-          item.style.display = 'none';
-        }
+        item.style.display = (title.includes(searchTerm) || genre.includes(searchTerm)) ? '' : 'none';
       });
     });
   </script>
