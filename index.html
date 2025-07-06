@@ -4,117 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin - Kelola Cerita</title>
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #121212;
-      color: #e0e0e0;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: linear-gradient(135deg, #4b0082, #00bfa5);
-      padding: 20px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    main {
-      max-width: 700px;
-      margin: 20px auto;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
-    label {
-      display: block;
-      margin-top: 12px;
-      font-weight: 600;
-    }
-    input[type="text"],
-    textarea,
-    input[type="password"] {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border: none;
-      border-radius: 8px;
-      background: #262626;
-      color: #fff;
-    }
-    textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-    input[type="file"] {
-      margin-top: 8px;
-    }
-    button {
-      margin-top: 16px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #00bfa5, #e040fb);
-      color: #121212;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px #00bfa5;
-    }
-    .cerita-list {
-      margin-top: 30px;
-    }
-    .cerita-item {
-      background: rgba(255,255,255,0.08);
-      padding: 10px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-    }
-    .cerita-item h3 {
-      margin: 0;
-      color: #00bfa5;
-    }
-    .cerita-actions {
-      margin-top: 8px;
-    }
-    .btn-edit, .btn-delete {
-      background: transparent;
-      border: 1px solid #00bfa5;
-      padding: 4px 8px;
-      border-radius: 6px;
-      color: #00bfa5;
-      font-size: 0.9rem;
-      cursor: pointer;
-      margin-right: 8px;
-    }
-    .btn-delete {
-      border-color: #e040fb;
-      color: #e040fb;
-    }
-    .btn-edit:hover {
-      background: #00bfa5;
-      color: #121212;
-    }
-    .btn-delete:hover {
-      background: #e040fb;
-      color: #121212;
-    }
-    footer {
-      text-align: center;
-      padding: 16px;
-      font-size: 14px;
-      color: #888;
-    }
-    footer a {
-      color: #00bfa5;
-      text-decoration: none;
-      margin: 0 8px;
-    }
-  </style>
+
   <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -123,14 +13,14 @@
 <body>
   <header>Admin Kelola Cerita</header>
 
-  <!-- PIN form -->
-  <div id="pin-form" style="text-align: center; margin: 20px;">
+  <!-- Form PIN -->
+  <div id="pin-form">
     <label for="pin">Masukkan PIN:</label>
     <input type="password" id="pin" required />
     <button id="submit-pin">Masuk</button>
   </div>
 
-  <!-- Admin content -->
+  <!-- Konten Admin -->
   <main id="admin-content" style="display: none;">
     <form id="form-cerita">
       <input type="hidden" id="current-key" />
@@ -150,9 +40,7 @@
     </form>
 
     <input type="text" id="search" placeholder="Cari judul atau genre" />
-    <div class="cerita-list" id="cerita-list">
-      <!-- List cerita muncul di sini -->
-    </div>
+    <div class="cerita-list" id="cerita-list"></div>
   </main>
 
   <footer>
@@ -169,6 +57,7 @@
       messagingSenderId: "264966107720",
       appId: "1:264966107720:web:868abe93cdff209040de7d"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
@@ -185,13 +74,11 @@
     const pinInput = document.getElementById('pin');
     const submitPinButton = document.getElementById('submit-pin');
 
-    const pinPath = "700261"; // Lokasi PIN di Firebase
-
     submitPinButton.addEventListener('click', () => {
       const enteredPin = pinInput.value;
       auth.signInAnonymously()
         .then(() => {
-          db.ref(pinPath).once('value').then(snapshot => {
+          db.ref("admin_pin").once("value").then(snapshot => {
             const correctPin = snapshot.val();
             if (enteredPin === correctPin) {
               pinForm.style.display = 'none';
@@ -204,8 +91,7 @@
           });
         })
         .catch(err => {
-          console.error("Auth error:", err);
-          alert("Gagal login");
+          alert("Gagal autentikasi");
         });
     });
 
@@ -248,7 +134,7 @@
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject('Gagal baca file');
+        reader.onerror = () => reject('Gagal membaca file');
         reader.readAsDataURL(file);
       });
     }
@@ -264,14 +150,14 @@
         ceritaList.innerHTML = '';
         Object.entries(data).forEach(([key, val]) => {
           const item = document.createElement('div');
-          item.className = 'cerita-item';
           item.innerHTML = `
             <h3>${val.judul}</h3>
             <div><strong>Genre:</strong> ${val.genre}</div>
-            <div class="cerita-actions">
+            <div>
               <button class="btn-edit" data-key="${key}">Edit</button>
               <button class="btn-delete" data-key="${key}">Hapus</button>
             </div>
+            <hr/>
           `;
           ceritaList.appendChild(item);
         });
@@ -311,11 +197,11 @@
 
     document.getElementById('search').addEventListener('input', function () {
       const searchTerm = this.value.toLowerCase();
-      const items = document.querySelectorAll('.cerita-item');
+      const items = document.querySelectorAll('.cerita-list > div');
       items.forEach(item => {
         const title = item.querySelector('h3').textContent.toLowerCase();
-        const genre = item.querySelector('div').textContent.toLowerCase();
-        item.style.display = (title.includes(searchTerm) || genre.includes(searchTerm)) ? '' : 'none';
+        const genreText = item.querySelector('div').textContent.toLowerCase();
+        item.style.display = (title.includes(searchTerm) || genreText.includes(searchTerm)) ? '' : 'none';
       });
     });
   </script>
